@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, ScrollView, Alert, Dimensions } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { MaterialIcons, FontAwesome5, Ionicons } from '@expo/vector-icons';
+import { MaterialIcons, FontAwesome5 } from '@expo/vector-icons';
 import { useFonts, Pacifico_400Regular } from '@expo-google-fonts/pacifico';
+import { router } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const { width } = Dimensions.get('window');
 
@@ -31,12 +33,19 @@ export default function LoginScreen() {
     return null; // Wait for font to load
   }
 
-  const handleSignIn = () => {
+  const handleSignIn = async () => {
     if (!email || !password) {
       Alert.alert('Hold on!', 'Please enter both your email and password to continue.');
       return;
     }
-    Alert.alert('Success', `Welcome back! Connecting to your profile...`);
+    try {
+      // Save login state so user never needs to log in again
+      await AsyncStorage.setItem('isLoggedIn', 'true');
+      await AsyncStorage.setItem('userEmail', email);
+      router.replace('/(tabs)');
+    } catch (e) {
+      Alert.alert('Error', 'Could not save session. Please try again.');
+    }
   };
 
   const handleSocialLogin = (platform: string) => {
